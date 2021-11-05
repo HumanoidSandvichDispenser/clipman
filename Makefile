@@ -10,7 +10,7 @@ OUT = clipman
 
 all: $(OUT)
 
-$(OUT): main.o clipboard.o
+$(OUT): main.o clipboard.o utils.o
 	${CXX} ${CXXFLAGS} ${LDFLAGS} -o $(OUT) $(x11_bsd_flags) $^
 
 %.o: %.cpp

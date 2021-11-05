@@ -11,43 +11,49 @@
 #include <iostream>
 
 /*
- * Command to run to grab clipboard content
+ * Command to run to grab clipboard content. It is recommended that `xclip` is
+ * used.
  *
  * Default: `xclip -selection clipboard -o`
  */
 static const std::string CLIPBOARD_COMMAND = "xclip -selection clipboard -o";
 
 /*
- * Maximum clipboard history size
+ * Maximum clipboard history size. Currently does nothing.
  *
  * Default: `256`
  */
 static const int CLIPBOARD_HIST_SIZE = 256;
 
 /*
- * Clipboard target atom priority list.
+ * Clipboard target atom priority list. Clipman will try to find if the
+ * clipboard content contains a target lower in the priority list FIRST.
  *
- * Default: "image/png", "image/jpg", "text/html", "text/plain", "UTF8_STRING"
+ * Default: "image/png", "image/jpg", "text/plain", "UTF8_STRING"
  */
 static const std::string TARGET_PRIORITY_LIST[] = {
     "image/png",
     "image/jpg",
-    "text/html",
     "text/plain",
     "UTF8_STRING"
 };
 
 /*
- * Adds an item to the clipboard even if a target was not found for it.
+ * Specifies which target atoms are binary formats. This is used so
+ * clipboard binary is read with `fread` and clipboard text is read with
+ * `fgets`.
  *
- * Default: `false`
+ * Default: "image/png", "image/jpg"
  */
-static const bool FORCE_ADD_TO_HIST = false;
+static const std::string BINARY_TARGET_LIST[] = {
+    "image/png"
+    "image/jpg"
+};
 
 /*
  * Default path to store clipboard history (when argument is not passed in)
  *
- * Default: `$HOME/.cache/clipman`
+ * Default: `"$HOME/.cache/clipman"`
  */
 static const std::string DEFAULT_HIST_PATH = "$HOME/.cache/clipman";
 

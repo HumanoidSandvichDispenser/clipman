@@ -11,6 +11,9 @@
 #include "opts.h"
 #include <string>
 
+static bool is_enabled = true;
+
+void handle_sigusr(void);
 void expand_env(std::string*);
 void parse_args(int, char**, opts*);
 int main(int, char**);

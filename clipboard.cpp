@@ -7,22 +7,15 @@
 
 #include "clipboard.h"
 #include "config.h"
+#include "utils.h"
 #include <cstdio>
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <openssl/md5.h>
 #include <ostream>
-#include <memory>
-#include <sstream>
 #include <string>
-#include <array>
-#include <vector>
-#include <iterator>
 #include <chrono>
 #include <iomanip>
-
-#define CLIPBOARD_COMMAND "xclip -selection clipboard -o"
 
 
 bool wait_for_clipboard_change(std::string* out, std::string* targets) {
@@ -33,25 +26,27 @@ bool wait_for_clipboard_change(std::string* out, std::string* targets) {
 }
 
 void get_clipboard_content(std::string* out, std::string* targets) {
-    *out = get_stdout(CLIPBOARD_COMMAND);
     *targets = get_stdout("xclip -selection clipboard -o -t TARGETS");
+    std::string target = find_target(*targets);
+    *out = get_stdout((CLIPBOARD_COMMAND + " -t " + target).c_str());
 }
 
-std::string get_stdout(const char* exec) {
-    // use const char* exec because popen is a C function
-    std::array<char, 128> buf;
+/*
+ * Like get_stdout, but written specfically to read and write binary data.
+ */
+void write_clipboard_to_file(std::string exec, FILE *filestream) {
+    char buf[128];
     std::string res = "";
-    std::unique_ptr<FILE, decltype(&pclose)> stream(popen(exec, "r"), pclose);
-
-    if (!stream) {
-        throw std::runtime_error("Unable to popen");
-    }
+    std::unique_ptr<FILE, decltype(&pclose)> pstream(popen(exec.c_str(), "r"), pclose);
     
-    while (fgets(buf.data(), buf.size(), stream.get()) != nullptr) {
-        res += buf.data();
+    while (true) {
+        int buf_size = std::fread(buf, 1, 128, pstream.get());
+        if (buf_size <= 0) {
+            // no more content to read from buffer. stop!
+            break;
+        }
+        std::fwrite(buf, 1, 128, filestream);
     }
-
-    return res;
 }
 
 std::string find_target(std::string curr_targets) {
@@ -70,21 +65,22 @@ void append_to_history(std::string content, std::string target, std::string path
     std::chrono::milliseconds ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch());
-    //long int timestamp = ms.count();
+
     std::string hash = md5sum(content);
-    
-    std::ofstream outfile(path + "/" + hash + ".clip");
-    outfile << target << std::endl << content;
+    std::string filename = (path + "/" + hash + ".clip");
 
-    outfile.close();
-}
-
-std::string md5sum(std::string str) {
-    unsigned char* res_c = MD5((unsigned char*)str.c_str(), str.size(), NULL);
-    std::stringstream stream;
-    std::string digest = "";
-    for (int i = 0; i < 16; i++) {
-        stream << std::hex << (int)res_c[i];
+    // binary data formats will have their bytes directly written with fread/fwrite instead of fgets
+    if (target == "image/png") {
+        std::unique_ptr<FILE, decltype(&fclose)> outfile(fopen(filename.c_str(), "wb"), fclose);
+        write_clipboard_to_file(CLIPBOARD_COMMAND + " -t " + target, outfile.get());
+        // since outfile is a unique_ptr, it will automatically dispose
+    } else {
+        std::ofstream outfile(filename);
+        outfile << content;
+        outfile.close();
     }
-    return stream.str();
+    
+    std::ofstream headerfile(filename + "h");
+    headerfile << target;
+    headerfile.close();
 }
