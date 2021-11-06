@@ -57,3 +57,13 @@ void mkcachedir() {
         }
     }
 }
+
+bool is_mimetype_binary(std::string target_mimetype) {
+    for (const std::string mimetype : TARGET_PRIORITY_LIST) {
+        if (target_mimetype == mimetype) {
+            return true;
+        }
+    }
+
+    return false;
+}

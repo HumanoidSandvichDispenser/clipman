@@ -13,6 +13,7 @@
 
 static bool is_enabled = true;
 
+bool is_another_process_running();
 void handle_sigusr(void);
 void expand_env(std::string*);
 void parse_args(int, char**, opts*);

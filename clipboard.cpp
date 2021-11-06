@@ -27,7 +27,7 @@ bool wait_for_clipboard_change(std::string* out, std::string* targets) {
 
 void get_clipboard_content(std::string* out, std::string* targets) {
     *targets = get_stdout("xclip -selection clipboard -o -t TARGETS");
-    std::string target = find_target(*targets);
+    std::string target = find_target_mime_type(*targets);
     *out = get_stdout((CLIPBOARD_COMMAND + " -t " + target).c_str());
 }
 
@@ -38,7 +38,7 @@ void write_clipboard_to_file(std::string exec, FILE *filestream) {
     char buf[128];
     std::string res = "";
     std::unique_ptr<FILE, decltype(&pclose)> pstream(popen(exec.c_str(), "r"), pclose);
-    
+
     while (true) {
         int buf_size = std::fread(buf, 1, 128, pstream.get());
         if (buf_size <= 0) {
@@ -49,7 +49,7 @@ void write_clipboard_to_file(std::string exec, FILE *filestream) {
     }
 }
 
-std::string find_target(std::string curr_targets) {
+std::string find_target_mime_type(std::string curr_targets) {
     for (std::string target : TARGET_PRIORITY_LIST) {
         if (curr_targets.find(target) != std::string::npos) {
             return target;
@@ -59,9 +59,7 @@ std::string find_target(std::string curr_targets) {
     return "";
 }
 
-void append_to_history(std::string content, std::string target, std::string path) {
-    // TODO: Replace naming convention to hashes. This means previously copied
-    // items won't reappear on the list, but their modify time will change.
+void append_to_history(std::string content, std::string target_mime, std::string path) {
     std::chrono::milliseconds ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch());
@@ -70,9 +68,9 @@ void append_to_history(std::string content, std::string target, std::string path
     std::string filename = (path + "/" + hash + ".clip");
 
     // binary data formats will have their bytes directly written with fread/fwrite instead of fgets
-    if (target == "image/png") {
+    if (target_mime == "image/png") {
         std::unique_ptr<FILE, decltype(&fclose)> outfile(fopen(filename.c_str(), "wb"), fclose);
-        write_clipboard_to_file(CLIPBOARD_COMMAND + " -t " + target, outfile.get());
+        write_clipboard_to_file(CLIPBOARD_COMMAND + " -t " + target_mime, outfile.get());
         // since outfile is a unique_ptr, it will automatically dispose
     } else {
         std::ofstream outfile(filename);
@@ -81,6 +79,6 @@ void append_to_history(std::string content, std::string target, std::string path
     }
     
     std::ofstream headerfile(filename + "h");
-    headerfile << target;
+    headerfile << target_mime;
     headerfile.close();
 }

@@ -26,26 +26,25 @@ static const std::string CLIPBOARD_COMMAND = "xclip -selection clipboard -o";
 static const int CLIPBOARD_HIST_SIZE = 256;
 
 /*
- * Clipboard target atom priority list. Clipman will try to find if the
- * clipboard content contains a target lower in the priority list FIRST.
+ * Clipboard mime type priority list. Clipman will try to find if the clipboard
+ * content contains a mime type lower in the priority list FIRST.
  *
  * Default: "image/png", "image/jpg", "text/plain", "UTF8_STRING"
  */
 static const std::string TARGET_PRIORITY_LIST[] = {
-    "image/png",
+    "image/png", // highest priority
     "image/jpg",
     "text/plain",
-    "UTF8_STRING"
+    "UTF8_STRING" // lowest priority
 };
 
 /*
- * Specifies which target atoms are binary formats. This is used so
- * clipboard binary is read with `fread` and clipboard text is read with
- * `fgets`.
+ * Specifies which mime types are binary formats. This is used so clipboard
+ * binary is read with `fread` and clipboard text is read with `fgets`.
  *
  * Default: "image/png", "image/jpg"
  */
-static const std::string BINARY_TARGET_LIST[] = {
+static const std::string BINARY_MIME_TYPE_LIST[] = {
     "image/png"
     "image/jpg"
 };

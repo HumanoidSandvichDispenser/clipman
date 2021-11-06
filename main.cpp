@@ -23,11 +23,14 @@
 #include "clipboard.h"
 #include "config.h"
 #include "opts.h"
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <wordexp.h>
 #include <signal.h>
+#include <sys/file.h>
+#include <errno.h>
 
 
 void handle_sigusr(int signum) {
@@ -67,6 +70,16 @@ void parse_args(int argc, char **argv, opts *options) {
 }
 
 int main(int argc, char **argv) {
+    int pid_file = open("/var/run/clipman.pid", O_CREAT | O_RDWR);
+    int rc = flock(pid_file, LOCK_EX | LOCK_NB);
+
+    if (rc) {
+        if (errno == EWOULDBLOCK) {
+            std::cerr << "Another instance of clipman is running! Remove /var/run/clipman.pid if no other instance is running." << std::endl;
+            return 1;
+        }
+    }
+
     opts *options, opts_v;
     options = &opts_v;
 
@@ -93,9 +106,9 @@ int main(int argc, char **argv) {
         if (clip_content != previous_clip_content) {
             // clipboard has changed; register new content.
             previous_clip_content = clip_content;
-            std::string target = find_target(clip_targets);
-            if (target != "")
-                append_to_history(clip_content, target, options->path);
+            std::string target_mime = find_target_mime_type(clip_targets);
+            if (target_mime != "")
+                append_to_history(clip_content, target_mime, options->path);
         }
     }
 }
