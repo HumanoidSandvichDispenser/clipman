@@ -22,6 +22,7 @@ SIGRMIN+2.
 * `xclip` --- available most distro's package repositories
 * `clipnotify` --- in Arch official repo, or [clone from GitHub and compile it
   yourself](https://github.com/cdown/clipnotify)
+* `openssl-devel`
 
 Makefile CXX flags: `-lX11 -lXfixes -lssl -lcrypto`
 
