@@ -28,7 +28,7 @@ bool wait_for_clipboard_change(std::string* out, std::string* targets) {
 void get_clipboard_content(std::string* out, std::string* targets) {
     *targets = get_stdout("xclip -selection clipboard -o -t TARGETS");
     std::string target = find_target_mime_type(*targets);
-    *out = get_stdout((CLIPBOARD_COMMAND + " -t " + target).c_str());
+    *out = get_stdout((std::string(CLIPBOARD_COMMAND) + " -t " + target).c_str());
 }
 
 /*
@@ -70,7 +70,7 @@ void append_to_history(std::string content, std::string target_mime, std::string
     // binary data formats will have their bytes directly written with fread/fwrite instead of fgets
     if (target_mime == "image/png") {
         std::unique_ptr<FILE, decltype(&fclose)> outfile(fopen(filename.c_str(), "wb"), fclose);
-        write_clipboard_to_file(CLIPBOARD_COMMAND + " -t " + target_mime, outfile.get());
+        write_clipboard_to_file(std::string(CLIPBOARD_COMMAND) + " -t " + target_mime, outfile.get());
         // since outfile is a unique_ptr, it will automatically dispose
     } else {
         std::ofstream outfile(filename);

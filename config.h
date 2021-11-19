@@ -8,7 +8,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <iostream>
+#include <stdio.h>
 
 /*
  * Command to run to grab clipboard content. It is recommended that `xclip` is
@@ -16,7 +16,7 @@
  *
  * Default: `xclip -selection clipboard -o`
  */
-static const std::string CLIPBOARD_COMMAND = "xclip -selection clipboard -o";
+static const char *CLIPBOARD_COMMAND = "xclip -selection clipboard -o";
 
 /*
  * Maximum clipboard history size. Currently does nothing.
@@ -31,7 +31,7 @@ static const int CLIPBOARD_HIST_SIZE = 256;
  *
  * Default: "image/png", "image/jpg", "text/plain", "UTF8_STRING"
  */
-static const std::string TARGET_PRIORITY_LIST[] = {
+static const char *TARGET_PRIORITY_LIST[] = {
     "image/png", // highest priority
     "image/jpg",
     "text/plain",
@@ -44,7 +44,7 @@ static const std::string TARGET_PRIORITY_LIST[] = {
  *
  * Default: "image/png", "image/jpg"
  */
-static const std::string BINARY_MIME_TYPE_LIST[] = {
+static const char *BINARY_MIME_TYPE_LIST[] = {
     "image/png"
     "image/jpg"
 };
@@ -54,6 +54,6 @@ static const std::string BINARY_MIME_TYPE_LIST[] = {
  *
  * Default: `"$HOME/.cache/clipman"`
  */
-static const std::string DEFAULT_HIST_PATH = "$HOME/.cache/clipman";
+static const char *DEFAULT_HIST_PATH = "$HOME/.cache/clipman";
 
 #endif /* !CONFIG_H */

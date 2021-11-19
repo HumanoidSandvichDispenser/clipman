@@ -46,7 +46,7 @@ std::string md5sum(std::string str) {
 }
 
 void mkcachedir() {
-    if (mkdir(DEFAULT_HIST_PATH.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+    if (mkdir(DEFAULT_HIST_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
         if (errno == EEXIST) {
             // directory already exists.
             return;
