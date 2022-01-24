@@ -77,7 +77,7 @@ void append_to_history(std::string content, std::string target_mime, std::string
         outfile << content;
         outfile.close();
     }
-    
+
     std::ofstream headerfile(filename + "h");
     headerfile << target_mime;
     headerfile.close();

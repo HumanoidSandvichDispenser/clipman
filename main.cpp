@@ -75,7 +75,9 @@ int main(int argc, char **argv) {
 
     if (rc) {
         if (errno == EWOULDBLOCK) {
-            std::cerr << "Another instance of clipman is running! Remove /var/run/clipman.pid if no other instance is running." << std::endl;
+            std::cerr << "Another instance of clipman is running! Remove " <<
+                "/var/run/clipman.pid if no other instance is running." <<
+                std::endl;
             return 1;
         }
     }
